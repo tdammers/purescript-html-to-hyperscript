@@ -10,6 +10,7 @@ import LenientHtmlParser ( Tag (..)
                          )
 import TreeSoup (Node (..))
 import Data.Foldable (intercalate, traverse_)
+import Data.Traversable (class Traversable)
 import Data.Monoid (class Monoid, mempty)
 import Data.List (List (..))
 import Data.Tuple (Tuple (..))
@@ -64,12 +65,13 @@ writeAttribute opts attr =
     Tuple propfn args ->
       propfn <> " " <> intercalate " " args
 
--- writeAttributes :: forall f. Traversable f => f Attribute -> String
+writeAttributes :: forall f. Traversable f => HalogenOptions -> f Attribute -> String
 writeAttributes opts = intercalate ", " <<< map (writeAttribute opts)
 
 translateAttribute :: HalogenOptions -> Attribute -> Tuple String (Array String)
-translateAttribute opts (Attribute name val) = 
+translateAttribute opts (Attribute (Name name) (Value val)) = 
   case name of
     _ -> Tuple
-          (opts.aliasP <> ".prop " <> show name)
-          [ "( " <> opts.aliasC <> ".PropName " <> show val <> " )" ]
+          (opts.aliasP <> ".prop " <>
+            "( " <> opts.aliasC <> ".PropName " <> show name <> " )")
+          [ show val ]

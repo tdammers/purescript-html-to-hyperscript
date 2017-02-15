@@ -3,22 +3,16 @@ module Main where
 import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log, error)
-import Control.Monad.Eff.Exception (EXCEPTION, throw, catchException, message)
-import LenientHtmlParser (Tag (..), parseTags)
+import Control.Monad.Eff.Exception (throw, catchException, message)
 import Node.FS (FS)
-import Node.FS.Sync (readTextFile, writeTextFile)
-import Node.Process (PROCESS, stdin)
-import Node.Stream (readString, writeString)
+import Node.FS.Sync (readTextFile)
+import Node.Process (PROCESS)
 import Node.Encoding (Encoding (..))
-import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
-import Data.Foldable (intercalate, traverse_)
-import Data.Monoid (class Monoid, mempty)
-import Data.List (List (..))
 import Data.String (trim)
-import TreeSoup (unsoup, Node (..))
-
-import Writers.Halogen
+import LenientHtmlParser (parseTags)
+import TreeSoup (unsoup)
+import Writers.Halogen (defHalogenOptions, writeHalogen)
 
 main :: forall e
       . Array String
