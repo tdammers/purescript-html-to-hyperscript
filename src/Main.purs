@@ -41,4 +41,8 @@ main argv = catchException (error <<< message) do
       throw ("Error: cannot unsoup tags: " <> show err)
     Right nodes ->
       pure nodes
-  log $ writeHalogen defHalogenOptions nodes
+  case writeHalogen defHalogenOptions nodes of
+    Left err ->
+      throw ("Error: cannot convert to Halogen: " <> show err)
+    Right output ->
+      log output
