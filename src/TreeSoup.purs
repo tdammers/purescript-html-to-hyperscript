@@ -14,6 +14,7 @@ import Text.Parsing.Parser.Pos
 import Text.Parsing.Parser.Combinators
 import Data.Foldable (elem, notElem)
 import Data.String
+import Text.HTML.Entities as Entities
 
 data Node
   = TextNode String
@@ -36,7 +37,7 @@ pNode allowed = do
   t <- anyToken
   case t of
     TNode str -> do
-      pure $ TextNode str
+      pure <<< TextNode <<< Entities.decode $ str
     TagSingle (TagName name) attrs -> do
       if isAllowedChild name allowed
         then pure $ Element name attrs Nil
