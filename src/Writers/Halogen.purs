@@ -23,6 +23,8 @@ type HalogenOptions =
       , aliasP :: String
       , aliasE :: String
       , aliasC :: String
+      , standalone :: Boolean
+      , moduleName :: String
       }
 
 defHalogenOptions :: HalogenOptions
@@ -31,6 +33,8 @@ defHalogenOptions =
   , aliasP: "HP"
   , aliasE: "HE"
   , aliasC: "HC"
+  , standalone: true
+  , moduleName: "HalogenTemplate"
   }
 
 tagFn :: String -> String
@@ -39,8 +43,21 @@ tagFn x = toLower x
 writeHalogen :: HalogenOptions
              -> List Node
              -> Either String String
-writeHalogen opts nodes =
-  intercalate "\n\n" <$> sequence (map (writeNode opts "") nodes)
+writeHalogen opts nodes = do
+  header <- if opts.standalone
+    then writeHalogenHeader opts
+    else pure ""
+  body <- intercalate "\n\n" <<< map ("template = " <> _) <$> sequence (map (writeNode opts "") nodes)
+  pure $ header <> body
+
+writeHalogenHeader :: HalogenOptions -> Either String String
+writeHalogenHeader opts =
+  pure $ "module " <> opts.moduleName <> " where\n\n"
+    <> "import Halogen.HTML as " <> opts.aliasH <> "\n"
+    <> "import Halogen.HTML.Properties as " <> opts.aliasP <> "\n"
+    <> "import Halogen.HTML.Elements as " <> opts.aliasE <> "\n"
+    <> "import Halogen.HTML.Core as " <> opts.aliasC <> "\n"
+    <> "\n"
 
 writeNode :: HalogenOptions
              -> String
