@@ -15,7 +15,8 @@
     "purescript-node-process": "^3.0.0",
     "purescript-generics": "^3.3.0",
     "purescript-parsing": "^3.2.0",
-    "purescript-stringutils": "^0.0.4"
+    "purescript-stringutils": "^0.0.4",
+    "purescript-ginger": "https://github.com/tdammers/ginger-js/releases/download/v0.0.0/purescript-ginger.zip"
   },
   "devDependencies": {
     "purescript-psci-support": "^2.0.0"

@@ -1,2 +1,4 @@
-#!/usr/bin/env node
-require('../output/Main').main(process.argv.slice(2))();
+#!/bin/bash
+cd "$(dirname $0)/.."
+NODE_PATH="$(realpath ./output):$NODE_PATH"
+node bin/html2hy.js $@

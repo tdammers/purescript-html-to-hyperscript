@@ -2,7 +2,7 @@ module TreeSoup
 where
 
 import Prelude
-import LenientHtmlParser (Attribute, Tag(..), TagName (..))
+import LenientHtmlParser (Name (..), Value (..), Attribute (..), Tag(..), TagName (..))
 import Data.List (List (..), many)
 import Control.Monad.State (gets, modify)
 import Data.Either (Either)
@@ -10,9 +10,11 @@ import Data.Generic (class Generic, gShow)
 import Text.Parsing.Parser (ParseError, ParseState (..), Parser, ParserT, fail, runParser)
 import Text.Parsing.Parser.Pos (updatePosString)
 import Text.Parsing.Parser.Combinators (optional, try)
-import Data.Foldable (elem, notElem)
+import Data.Foldable (class Foldable, elem, notElem)
 import Data.String (toLower)
 import Text.HTML.Entities as Entities
+import Data.Argonaut
+import Data.StrMap as StrMap
 
 data Node
   = TextNode String
@@ -24,6 +26,26 @@ derive instance eqNode :: Eq Node
 instance showNode :: Show Node where
   show = gShow
 
+nodeToJson :: Node -> Json
+nodeToJson (TextNode str) =
+  encodeJson str
+nodeToJson (Element tagName attributes children) =
+     "tagName" := tagName
+  ~> "attributes" := attributesToJson attributes
+  ~> "children" := map nodeToJson children
+  ~> jsonEmptyObject
+
+attributesToJson :: forall f
+                  . Foldable f
+                 => Functor f
+                 => f Attribute
+                 -> Json
+attributesToJson =
+  fromObject <<< StrMap.fromFoldable <<< map attributeToJson
+
+attributeToJson :: Attribute -> JAssoc
+attributeToJson (Attribute (Name name) (Value value)) =
+  name := value
 
 unsoup :: List Tag -> Either ParseError (List Node)
 unsoup tags = runParser tags pNodes
